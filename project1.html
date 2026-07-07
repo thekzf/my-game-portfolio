@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROJECT_01 · Cloud Meadow 系统拆解</title>
+    <style>
+        /* ===== 全局重置 & 变量（与主页保持一致） ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg-main: #08080f;
+            --bg-card: #11111e;
+            --bg-card-hover: #18182a;
+            --text-primary: #e8edf5;
+            --text-secondary: #8a94a6;
+            --text-muted: #5a6478;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.25);
+            --accent-purple: #a78bfa;
+            --border: #1e1e2e;
+            --border-light: #2a2a3e;
+            --font-base: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --radius: 12px;
+            --transition: 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-base);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+        /* ===== 导航 ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px 40px;
+            background: rgba(8, 8, 15, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-btn {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-btn:hover { text-shadow: 0 0 12px var(--accent-glow); color: #fff; }
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+        .nav-right .resume-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        .nav-right .resume-link:hover { color: var(--accent); }
+
+        /* ===== 横幅 Banner ===== */
+        .banner {
+            width: 100%;
+            height: 480px;
+            position: relative;
+            margin-top: 68px;
+            /* ===== 【项目1头图】建议尺寸：1920×600px，游戏分析/数据图表/概念氛围图 ===== */
+            background: url('./images/project1-banner.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: flex-end;
+            background-color: #0d0d18;
+        }
+        .banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 20%, var(--bg-main) 100%);
+            pointer-events: none;
+        }
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px 50px;
+            width: 100%;
+        }
+        .banner .project-tag {
+            display: inline-block;
+            padding: 4px 16px;
+            border: 1px solid var(--accent-purple);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-purple);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            background: rgba(167, 139, 250, 0.08);
+        }
+        .banner h1 {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+        .banner .sub-meta {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tech-tag {
+            padding: 4px 16px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+
+        /* ===== 正文 ===== */
+        .page-body { padding: 60px 0 80px; }
+
+        .section-block {
+            margin-bottom: 64px;
+        }
+        .section-block h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-block h2 .accent-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+        }
+        .section-block p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 16px;
+            max-width: 860px;
+        }
+        .section-block ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 16px;
+        }
+        .section-block ul li {
+            color: var(--text-secondary);
+            font-size: 15px;
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .section-block ul li::before {
+            content: '▹';
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+        }
+
+        /* 数据卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 24px 0 8px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .stat-card:hover { border-color: var(--accent); box-shadow: 0 0 24px rgba(0, 212, 255, 0.05); }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            margin-bottom: 4px;
+        }
+        .stat-label { font-size: 13px; color: var(--text-muted); }
+
+        /* 截图网格 */
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .screenshot-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .screenshot-item:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .screenshot-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #14141f; /* fallback */
+        }
+        .screenshot-caption {
+            padding: 14px 18px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        /* 高亮框 */
+        .highlight-box {
+            background: rgba(0, 212, 255, 0.04);
+            border-left: 3px solid var(--accent);
+            padding: 20px 28px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 20px 0;
+        }
+        .highlight-box p { margin-bottom: 0; color: var(--text-primary); }
+
+        /* ===== 页脚 ===== */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        footer a { color: var(--text-secondary); text-decoration: none; transition: var(--transition); }
+        footer a:hover { color: var(--accent); }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            nav { padding: 14px 20px; }
+            .banner { height: 340px; margin-top: 60px; }
+            .banner h1 { font-size: 28px; }
+            .banner-content { padding: 0 20px 30px; }
+            .page-body { padding: 40px 0 60px; }
+            .section-block h2 { font-size: 20px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .screenshot-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航 -->
+<nav>
+    <a href="index.html" class="back-btn">← 返回作品集</a>
+    <div class="nav-right">
+        <!-- 【修改】直接指向根目录的 resume.pdf 并强制下载 -->
+        <a href="./resume.pdf" download class="resume-link">📄 下载简历</a>
+    </div>
+</nav>
+
+    <!-- 横幅 -->
+    <div class="banner">
+        <div class="banner-content">
+            <div class="project-tag">✦ 系统 &amp; 数值拆解</div>
+            <h1>《Cloud Meadow》系统&amp;数值全维度拆解</h1>
+            <p class="sub-meta">深度分析 · 经济循环 · 养成曲线 · 设计方法论</p>
+            <div class="tech-tags">
+                <span class="tech-tag">系统分析</span>
+                <span class="tech-tag">数值建模</span>
+                <span class="tech-tag">Excel</span>
+                <span class="tech-tag">Miro</span>
+                <span class="tech-tag">经济循环</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 正文 -->
+    <div class="page-body">
+        <div class="container">
+
+            <!-- 概述 -->
+            <div class="section-block">
+                <h2><span class="accent-dot"></span> 项目概述</h2>
+                <p>
+                    以《Cloud Meadow》为研究对象，对其核心系统与数值框架进行全维度拆解。从资源产出、消耗路径、养成效率到战斗数值，还原设计意图并提炼可复用的设计方法论，为同类模拟经营类游戏提供系统级参考。
+                </p>
+                <p>
+                    拆解范围涵盖：经济系统（货币/资源循环）、养成系统（角色/作物/工坊）、战斗数值（属性成长/技能倍率）以及赛季活动节奏，并以可视化图表呈现关键数据模型。
+                </p>
+                <div class="highlight-box">
+                    <p><strong>▸ 核心目标：</strong> 从“体验感受”倒推“设计公式”，建立系统间的耦合关系图谱。</p>
+                </div>
+            </div>
+
+            <!-- 数据快照 -->
+            <div class="section-block">
+                <h2><span class="accent-dot"></span> 拆解维度</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">核心系统模块</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">42</div>
+                        <div class="stat-label">数值公式推导</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">经济循环周期</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">设计洞察总结</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 拆解内容 -->
+            <div class="section-block">
+                <h2><span class="accent-dot"></span> 核心拆解亮点</h2>
+                <ul>
+                    <li><strong>经济循环建模：</strong> 还原金币/钻石/体力三大资源的产出效率与消耗漏斗，揭示中期“卡点”设计意图。</li>
+                    <li><strong>养成曲线拟合：</strong> 对作物生长、工坊制作、角色升级等维度进行数据拟合，得出不同阶段的“最优效率区间”。</li>
+                    <li><strong>战斗数值平衡：</strong> 分析属性成长与技能系数之间的乘算关系，评估不同流派在PVE环境下的收益边界。</li>
+                    <li><strong>赛季节奏设计：</strong> 梳理活动排期与资源投放的配合关系，提炼“长线留存”的运营设计逻辑。</li>
+                </ul>
+            </div>
+
+            <!-- 图表 / 截图 -->
+            <div class="section-block">
+                <h2><span class="accent-dot"></span> 分析图表 / 可视化</h2>
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <!-- ===== 【项目1截图1】建议尺寸：800×500px，经济循环图/数据图表 ===== -->
+                        <img src="./images/project1-shot1.jpg" alt="经济循环建模图" style="background: #14141f;">
+                        <div class="screenshot-caption">经济循环建模 · 资源产出/消耗曲线</div>
+                    </div>
+                    <div class="screenshot-item">
+                        <!-- ===== 【项目1截图2】建议尺寸：800×500px，养成曲线/数值拟合图 ===== -->
+                        <img src="./images/project1-shot2.jpg" alt="养成曲线拟合" style="background: #14141f;">
+                        <div class="screenshot-caption">养成效率曲线 · 作物/工坊/角色</div>
+                    </div>
+                    <div class="screenshot-item">
+                        <!-- ===== 【项目1截图3】建议尺寸：800×500px，战斗数值/流派分析 ===== -->
+                        <img src="./images/project1-shot3.jpg" alt="战斗数值分析" style="background: #14141f;">
+                        <div class="screenshot-caption">战斗数值平衡 · 流派收益对比</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 总结 -->
+            <div class="section-block">
+                <h2><span class="accent-dot"></span> 设计复盘与启示</h2>
+                <p>
+                    通过本次拆解，提炼出三条核心设计原则：<br>
+                    <strong>① 资源双轨制：</strong> 时间资源与付费资源的错位设计，保障免费玩家基础体验。<br>
+                    <strong>② 非线性成长：</strong> 在关键等级设置“质变点”，制造阶段性目标感。<br>
+                    <strong>③ 系统耦合度：</strong> 每个子系统都应至少与两个以上其他系统产生交互，以形成深度策略空间。
+                </p>
+                <p style="margin-top: 8px; color: var(--text-muted); font-size: 14px;">
+                    * 完整拆解文档（PDF）及原始数据表格可随简历索取。
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 个人作品集 · <a href="index.html">返回首页</a> · <a href="index.html#resume">下载简历</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>

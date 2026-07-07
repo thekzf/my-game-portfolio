@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人作品集 · 游戏策划</title>
+    <style>
+        /* ===== 全局重置 & 变量 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-main: #08080f;
+            --bg-card: #11111e;
+            --bg-card-hover: #18182a;
+            --text-primary: #e8edf5;
+            --text-secondary: #8a94a6;
+            --text-muted: #5a6478;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.25);
+            --accent-purple: #a78bfa;
+            --accent-gold: #fbbf24;
+            --border: #1e1e2e;
+            --border-light: #2a2a3e;
+            --font-base: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --radius: 12px;
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition: 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-base);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            /* ===== 【全局背景图】建议尺寸：1920×1080px，深色渐变/网格/像素风背景 ===== */
+            background-image: url('./images/bg-main.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* ===== 通用容器 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ===== 导航栏 ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 18px 40px;
+            background: rgba(8, 8, 15, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        nav.scrolled {
+            background: rgba(8, 8, 15, 0.94);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+        .logo span {
+            color: var(--accent-purple);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn-resume-nav {
+            padding: 6px 18px;
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--accent) !important;
+            transition: var(--transition);
+            background: transparent;
+        }
+        .btn-resume-nav:hover {
+            background: var(--accent);
+            color: var(--bg-main) !important;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .btn-resume-nav::after {
+            display: none !important;
+        }
+
+        /* 移动端汉堡 (简单) */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+        .nav-toggle span {
+            display: block;
+            width: 26px;
+            height: 2px;
+            background: var(--text-secondary);
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        /* ===== Hero 首屏 ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 4px 16px;
+            border: 1px solid var(--accent-purple);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-purple);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: rgba(167, 139, 250, 0.08);
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 18px;
+            letter-spacing: -0.5px;
+        }
+        .hero-content h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 32px;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 32px;
+            background: var(--accent);
+            color: var(--bg-main);
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-family: var(--font-base);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 32px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 15px;
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-family: var(--font-base);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: rgba(0, 212, 255, 0.06);
+        }
+
+        .hero-quote {
+            margin-top: 48px;
+            padding-left: 20px;
+            border-left: 3px solid var(--accent);
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 15px;
+            max-width: 500px;
+        }
+
+        /* ===== 作品集区域 ===== */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+        .section-header .line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-light), transparent);
+        }
+        .section-header .count {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-family: var(--font-mono);
+        }
+
+        /* 作品卡片网格 */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+        }
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 16px 48px rgba(0, 212, 255, 0.10);
+            background: var(--bg-card-hover);
+        }
+
+        .project-card .card-img {
+            width: 100%;
+            height: 260px;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card:hover .card-img {
+            filter: brightness(1.05);
+        }
+        .project-card .card-img .img-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 14px;
+            font-family: var(--font-mono);
+        }
+
+        .project-card .card-body {
+            padding: 28px 30px 30px;
+        }
+
+        .project-card .card-tag {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(0, 212, 255, 0.10);
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            margin-bottom: 12px;
+        }
+
+        .project-card .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .project-card .card-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .project-card .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .project-card .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .project-card .card-meta .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .project-card .card-arrow {
+            position: absolute;
+            bottom: 28px;
+            right: 30px;
+            color: var(--text-muted);
+            font-size: 20px;
+            transition: var(--transition);
+        }
+        .project-card:hover .card-arrow {
+            color: var(--accent);
+            transform: translateX(6px);
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* ===== 滚动动画 ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 992px) {
+            .projects-grid {
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            nav {
+                padding: 14px 20px;
+            }
+            .nav-links {
+                gap: 16px;
+            }
+            .nav-links a {
+                font-size: 13px;
+            }
+            .btn-resume-nav {
+                font-size: 12px;
+                padding: 4px 14px;
+            }
+
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            .hero-sub {
+                font-size: 16px;
+            }
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero-actions .btn-primary,
+            .hero-actions .btn-secondary {
+                justify-content: center;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .project-card .card-img {
+                height: 200px;
+            }
+            .project-card .card-body {
+                padding: 20px 22px 24px;
+            }
+            .project-card .card-title {
+                font-size: 19px;
+            }
+
+            .section {
+                padding: 56px 0;
+            }
+            .section-header h2 {
+                font-size: 20px;
+            }
+
+            .hero-quote {
+                font-size: 14px;
+                margin-top: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 26px;
+            }
+            .nav-links a:not(.btn-resume-nav) {
+                display: none;
+            }
+            .nav-toggle {
+                display: flex;
+            }
+            .nav-links.mobile-open a:not(.btn-resume-nav) {
+                display: block;
+            }
+            .nav-links.mobile-open {
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(8, 8, 15, 0.96);
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--border);
+                gap: 16px;
+            }
+            .nav-links.mobile-open .btn-resume-nav {
+                margin-top: 4px;
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav id="navbar">
+        <a href="index.html" class="logo">✦ <span>GAME</span>DESIGN</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#projects">作品集</a></li>
+            <!-- 【修改点1：导航栏简历下载链接 - 直接指向PDF并强制下载】 -->
+            <li><a href="./resume.pdf" download class="btn-resume-nav">📄 下载简历</a></li>
+        </ul>
+        <button class="nav-toggle" id="navToggle" aria-label="菜单">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- ===== Hero 首屏 ===== -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <div class="hero-badge">✦ 游戏策划 · 系统设计师</div>
+                <h1>
+                    设计 <span class="highlight">有灵魂</span> 的<br />游戏世界
+                </h1>
+                <p class="hero-sub">
+                    专注游戏系统架构、数值平衡与玩家体验设计。<br />
+                    从底层机制到顶层叙事，构建有深度的交互世界。
+                </p>
+                <div class="hero-actions">
+                    <!-- 【修改点2：首屏大按钮 - 直接指向PDF并强制下载】 -->
+                    <a href="./resume.pdf" download class="btn-primary">📄 下载简历</a>
+                    <a href="#projects" class="btn-secondary">↓ 查看作品</a>
+                </div>
+                <div class="hero-quote">
+                    " 游戏的本质不是规则，而是玩家在规则中创造的故事。"
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 作品集 ===== -->
+    <section class="section" id="projects">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>作品集</h2>
+                <span class="line"></span>
+                <span class="count">02</span>
+            </div>
+
+            <div class="projects-grid">
+                <!-- ===== 作品1：Cloud Meadow ===== -->
+                <a href="project1.html" class="project-card fade-in">
+                    <div class="card-img" style="background-image: url('./images/project1-cover.jpg');">
+                        <div class="img-placeholder" style="display: none;">📷 Cloud Meadow</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-tag">系统 &amp; 数值拆解</div>
+                        <h3 class="card-title">《Cloud Meadow》系统&amp;数值全维度拆解</h3>
+                        <p class="card-desc">
+                            深度剖析游戏的经济循环、养成曲线、资源产出与消耗平衡，还原设计意图并提炼可复用方法论。
+                        </p>
+                        <div class="card-meta">
+                            <span>📊 系统分析</span>
+                            <span class="dot"></span>
+                            <span>📈 数值建模</span>
+                            <span class="dot"></span>
+                            <span>🎯 设计复盘</span>
+                        </div>
+                    </div>
+                    <span class="card-arrow">→</span>
+                </a>
+
+                <!-- ===== 作品2：像素农场 ===== -->
+                <a href="project2.html" class="project-card fade-in">
+                    <div class="card-img" style="background-image: url('./images/project2-cover.jpg');">
+                        <div class="img-placeholder" style="display: none;">📷 像素农场</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-tag">原创策划案 · Demo</div>
+                        <h3 class="card-title">原创像素农场养成游戏策划案</h3>
+                        <p class="card-desc">
+                            从核心玩法、养成系统到资源循环的完整策划方案，包含Demo级数值框架与系统原型设计。
+                        </p>
+                        <div class="card-meta">
+                            <span>🌾 农场模拟</span>
+                            <span class="dot"></span>
+                            <span>🧑‍🌾 养成系统</span>
+                            <span class="dot"></span>
+                            <span>🎮 游戏策划</span>
+                        </div>
+                    </div>
+                    <span class="card-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 页脚 ===== -->
+    <footer>
+        <div class="container">
+            <p>
+                © 2026 个人作品集 &nbsp;·&nbsp;
+                <a href="#home">回到顶部</a> &nbsp;·&nbsp;
+                <!-- 【修改点3：页脚简历链接】 -->
+                <a href="./resume.pdf" download>📄 下载简历</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // 1. 滚动渐入动画
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        fadeElements.forEach(el => observer.observe(el));
+
+        // 2. 导航栏滚动背景
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 3. 移动端菜单切换
+        const toggle = document.getElementById('navToggle');
+        const links = document.getElementById('navLinks');
+        toggle.addEventListener('click', () => {
+            links.classList.toggle('mobile-open');
+        });
+        links.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                links.classList.remove('mobile-open');
+            });
+        });
+
+        // 4. 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        console.log('%c✦ 游戏策划作品集 ✦', 'font-size:20px; font-weight:bold; color:#00d4ff;');
+    </script>
+</body>
+</html>
