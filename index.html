@@ -152,7 +152,7 @@
             display: none !important;
         }
 
-        /* 移动端汉堡 (简单) */
+        /* 移动端汉堡 */
         .nav-toggle {
             display: none;
             flex-direction: column;
@@ -429,7 +429,7 @@
             transform: translateX(6px);
         }
 
-        /* ===== 页脚 ===== */
+        /* ===== 页脚（含签名） ===== */
         footer {
             border-top: 1px solid var(--border);
             padding: 32px 0;
@@ -444,6 +444,64 @@
         }
         footer a:hover {
             color: var(--accent);
+        }
+
+        /* 个人签名样式 */
+        .signature {
+            margin-top: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+        .signature:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .signature .heart {
+            color: #ff6b6b;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        .signature:hover .heart {
+            transform: scale(1.4);
+        }
+
+        /* ===== 彩蛋：五彩纸屑容器（默认隐藏） ===== */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: confettiFall 3s ease-out forwards;
+        }
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) rotate(720deg);
+            }
         }
 
         /* ===== 滚动动画 ===== */
@@ -563,7 +621,6 @@
         <a href="index.html" class="logo">✦ <span>GAME</span>DESIGN</a>
         <ul class="nav-links" id="navLinks">
             <li><a href="#projects">作品集</a></li>
-            <!-- 【修改点1：导航栏简历下载链接 - 直接指向PDF并强制下载】 -->
             <li><a href="./resume.pdf" download class="btn-resume-nav">📄 下载简历</a></li>
         </ul>
         <button class="nav-toggle" id="navToggle" aria-label="菜单">
@@ -584,7 +641,6 @@
                     从底层机制到顶层叙事，构建有深度的交互世界。
                 </p>
                 <div class="hero-actions">
-                    <!-- 【修改点2：首屏大按钮 - 直接指向PDF并强制下载】 -->
                     <a href="./resume.pdf" download class="btn-primary">📄 下载简历</a>
                     <a href="#projects" class="btn-secondary">↓ 查看作品</a>
                 </div>
@@ -652,20 +708,27 @@
         </div>
     </section>
 
-    <!-- ===== 页脚 ===== -->
+    <!-- ===== 页脚（含个人签名） ===== -->
     <footer>
         <div class="container">
             <p>
                 © 2026 个人作品集 &nbsp;·&nbsp;
                 <a href="#home">回到顶部</a> &nbsp;·&nbsp;
-                <!-- 【修改点3：页脚简历链接】 -->
                 <a href="./resume.pdf" download>📄 下载简历</a>
             </p>
+            <!-- 个人签名 shy，点击触发彩蛋 -->
+            <div class="signature" id="signature" title="点击有惊喜 ✨">
+                — design by <strong>shy</strong> <span class="heart">❤</span>
+            </div>
         </div>
     </footer>
 
+    <!-- ===== 五彩纸屑容器（彩蛋用） ===== -->
+    <div id="confetti-container"></div>
+
     <!-- ===== JavaScript ===== -->
     <script>
+        // ========== 基础交互 ==========
         // 1. 滚动渐入动画
         const fadeElements = document.querySelectorAll('.fade-in');
         const observer = new IntersectionObserver((entries) => {
@@ -710,7 +773,72 @@
             });
         });
 
-        console.log('%c✦ 游戏策划作品集 ✦', 'font-size:20px; font-weight:bold; color:#00d4ff;');
+        // ========== 彩蛋 1：点击签名触发消息 ==========
+        document.getElementById('signature').addEventListener('click', function() {
+            alert('🎉 你发现了隐藏的彩蛋！\n\n“设计有灵魂的游戏世界” —— shy ❤');
+        });
+
+        // ========== 彩蛋 2：键盘输入 "shy" 触发五彩纸屑 ==========
+        let typed = '';
+        const secretCode = 'shy';
+
+        document.addEventListener('keydown', function(e) {
+            // 忽略输入框、文本区域等
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            typed += e.key.toLowerCase();
+            // 只保留最后几个字符
+            if (typed.length > secretCode.length) {
+                typed = typed.slice(-secretCode.length);
+            }
+
+            if (typed === secretCode) {
+                // 触发五彩纸屑
+                launchConfetti();
+                // 重置输入缓存
+                typed = '';
+                // 额外提示（可选）
+                // alert('🎊 你触发了隐藏技能！');
+            }
+        });
+
+        // 五彩纸屑函数
+        function launchConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#00d4ff', '#a78bfa', '#fbbf24', '#ff6b6b', '#51cf66', '#ff922b', '#cc5de8'];
+            const pieces = 100;
+
+            for (let i = 0; i < pieces; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                const size = Math.random() * 8 + 6;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const delay = Math.random() * 2;
+                const duration = Math.random() * 2 + 2;
+
+                el.style.cssText = `
+                            left: ${left}%;
+                            width: ${size}px;
+                            height: ${size * 0.6}px;
+                            background: ${color};
+                            animation-delay: ${delay}s;
+                            animation-duration: ${duration}s;
+                            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+                        `;
+                container.appendChild(el);
+
+                // 自动移除动画结束的元素
+                setTimeout(() => {
+                    el.remove();
+                }, (delay + duration) * 1000 + 500);
+            }
+        }
+
+        // ========== 彩蛋 3：控制台隐藏消息 ==========
+        console.log('%c✦ 欢迎来到 shy 的游戏设计世界 ✦', 'font-size:18px; font-weight:bold; color:#00d4ff;');
+        console.log('%c💡 试试在键盘上连续输入 "shy" 看看会发生什么？', 'font-size:14px; color:#a78bfa;');
+        console.log('%c❤ 设计有灵魂的游戏世界 —— shy', 'font-size:13px; color:#ff6b6b;');
     </script>
 </body>
 </html>
